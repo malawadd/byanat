@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@mysten/dapp-kit/dist/index.css";
+import '@rainbow-me/rainbowkit/styles.css';
 import { Analytics } from "@vercel/analytics/next";
 
 import "@/app/globals.css";
@@ -12,8 +12,8 @@ import { Separator } from "@/components/ui/separator";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Suithetic",
-  description: "Generated synthetic data on the SUI blockchain",
+  title: "Bayanat",
+  description: "Generated synthetic data on the Filecoin blockchain",
 };
 
 export default function RootLayout({

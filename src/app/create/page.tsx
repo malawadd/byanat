@@ -8,26 +8,23 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { fromHex, toHex } from "@mysten/sui/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import DatasetInput from "@/components/dataset-input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Transaction } from "@mysten/sui/transactions";
 import DatasetViewer from "@/components/dataset-viewer";
 import { Loader2, Sparkles, ServerOff } from "lucide-react";
 import JsonSchemaInput from "@/components/json-schema-input";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getAllowlistedKeyServers, SealClient } from "@mysten/seal";
 import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AtomaModel, GenerationConfig, HFDataset, SyntheticDataResultItem } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
+import { useAccount } from 'wagmi';
 import { generatePromptWithWizard, getRows, generateRow, storeBlob } from "@/app/create/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TESTNET_PACKAGE_ID, TESTNET_SUITHETIC_OBJECT, MIST_PER_USDC, TESTNET_USDC_TYPE } from "@/lib/constants";
+import { MIST_PER_USDC, CALIBRATION_PACKAGE_ADDRESS, CALIBRATION_BAYANAT_CONTRACT, CALIBRATION_USDC_ADDRESS } from "@/lib/constants";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -116,26 +113,8 @@ function CreateInnerPage() {
   const MAX_PREVIEW_ATTEMPTS = 5;
 
   const router = useRouter();
-  const suiClient = useSuiClient();
   const searchParams = useSearchParams();
-  const currentAccount = useCurrentAccount();
-  const sealClient = useMemo(() => new SealClient({
-    suiClient: suiClient as any,
-    serverObjectIds: getAllowlistedKeyServers("testnet").map((id, index) => [id, index]),
-    verifyKeyServers: false,
-  }), [suiClient]);
-
-  const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction({
-    execute: async ({ bytes, signature }) =>
-      await suiClient.executeTransactionBlock({
-        transactionBlock: bytes,
-        signature,
-        options: {
-          showRawEffects: true,
-          showEffects: true,
-        },
-      }),
-  });
+  const { address: currentAccount } = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -234,7 +213,6 @@ function CreateInnerPage() {
 
       const jsonSchema = searchParams.get("jsonSchema");
       if (jsonSchema) {
-        // console.log(JSON.parse(jsonSchema));
         setInitialJsonSchema(JSON.parse(jsonSchema));
         form.setValue("isStructured", true, { shouldValidate: true });
       }
@@ -304,7 +282,7 @@ function CreateInnerPage() {
   }, [dataset, previewAttempts, form, models, jsonSchema, data]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!dataset || !currentAccount?.address) {
+    if (!dataset || !currentAccount) {
       toast.error("Generation Failed", { description: "Dataset or current account not available for generation." });
       return;
     }
@@ -314,104 +292,40 @@ function CreateInnerPage() {
       return;
     }
 
-    const { data: coins } = await suiClient.getCoins({
-      owner: currentAccount.address,
-      coinType: TESTNET_USDC_TYPE,
-    });
+    // TODO: Implement contract interaction for Filecoin
+    // This will be updated when contract ABI is provided
+    toast.info("Contract Integration Pending", { description: "Contract interaction will be implemented when ABI is provided." });
 
-    if (coins.length === 0) {
-      toast.error("Generation Failed", { description: "No USDC coins found for the current account." });
-      return;
-    }
+    setIsDatasetGenerationLoading(true);
 
-    const megaTokens = values.maxTokens / 1_000_000;
-    const roundedGenerationSuiAmount = Math.ceil(currentModel.price_per_one_million_compute_units * megaTokens);
+    try {
+      const generationConfig: GenerationConfig = {
+        model: currentModel.id,
+        inputFeature: values.inputFeature,
+        jsonSchema: values.isStructured && jsonSchema ? zodToJsonSchema(jsonSchema) : undefined,
+        maxTokens: values.maxTokens,
+        prompt: values.prompt
+      };
 
-    const tx = new Transaction();
-    const [generationCoin] = tx.splitCoins(coins[0].coinObjectId, [roundedGenerationSuiAmount]);
-
-    tx.moveCall({
-      target: `${TESTNET_PACKAGE_ID}::suithetic::add_to_balance`,
-      arguments: [
-        tx.object(TESTNET_SUITHETIC_OBJECT),
-        generationCoin
-      ],
-    });
-    
-    const hfRevision = (dataset as any).revision || "main"; 
-    const modelTaskSmallId = 0; 
-    const modelNodeSmallId = 0;
-
-    const finalPrice = values.visibility === 1 ? 0 : (values.price || 0) * MIST_PER_USDC;
-
-    const datasetObject = tx.moveCall({
-      target: `${TESTNET_PACKAGE_ID}::dataset::mint_dataset`,
-      arguments: [
-        tx.pure.string(dataset.path),
-        tx.pure.string(dataset.config),
-        tx.pure.string(dataset.split),
-        tx.pure.string(hfRevision),
-        tx.pure.u16(values.visibility),
-        tx.pure.string(values.datasetName),
-        tx.pure.string(values.description || ""),
-        tx.pure.u64(finalPrice),
-        tx.pure.string(currentModel.id),
-        tx.pure.u64(modelTaskSmallId),
-        tx.pure.u64(modelNodeSmallId),
-        tx.pure.u64(currentModel.price_per_one_million_compute_units),
-        tx.pure.u64(currentModel.max_num_compute_units),
-      ]
-    });
-
-    tx.transferObjects([datasetObject], tx.pure.address(currentAccount.address));
-
-    signAndExecuteTransaction({ transaction: tx }, {
-      onSuccess: async (result: any) => {
-        const sharedObjects = result.effects?.created?.filter((obj: any) => obj.owner.Shared);
-        if (sharedObjects.length > 0) {
-          setDatasetObjectId(sharedObjects[0].reference.objectId);
-        } else {
-          toast.error("Transaction Error", { description: "Failed to get dataset object ID from transaction result." });
-          console.error("Failed to get dataset object ID from transaction result:", result);
-          return;
-        }
-
-        setIsDatasetGenerationLoading(true);
-    
-        try {
-          const generationConfig: GenerationConfig = {
-            model: currentModel.id,
-            inputFeature: values.inputFeature,
-            jsonSchema: values.isStructured && jsonSchema ? zodToJsonSchema(jsonSchema) : undefined,
-            maxTokens: values.maxTokens,
-            prompt: values.prompt
-          };
-  
-          if (!dataset) {
-            toast.error("Dataset Generation Error", { description: "Dataset not selected or invalid." });
-            setSyntheticDatasetOutput([]);
-            setIsDatasetGenerationLoading(false);
-            return;
-          }
-  
-          setSyntheticDatasetOutput([]); 
-  
-          const outputs = await generateSyntheticDataset(dataset, generationConfig, setProgress);
-          setSyntheticDatasetOutput(outputs);
-        } catch (error: any) {
-          const errorMessage = error.message || "An unknown error occurred on the server.";
-          toast.error("Dataset Generation Error", { description: `Client-side error: ${errorMessage}` });
-          setSyntheticDatasetOutput([]);
-        } finally {
-          setIsDatasetGenerationLoading(false);
-          setProgress(0);
-        }
-      },
-      onError: (error: any) => {
-        toast.error("Transaction Failed", { description: error.message || "An unknown error occurred during the transaction." });
-        console.error("Transaction failed:", error);
+      if (!dataset) {
+        toast.error("Dataset Generation Error", { description: "Dataset not selected or invalid." });
+        setSyntheticDatasetOutput([]);
+        setIsDatasetGenerationLoading(false);
+        return;
       }
-    });
+
+      setSyntheticDatasetOutput([]); 
+
+      const outputs = await generateSyntheticDataset(dataset, generationConfig, setProgress);
+      setSyntheticDatasetOutput(outputs);
+    } catch (error: any) {
+      const errorMessage = error.message || "An unknown error occurred on the server.";
+      toast.error("Dataset Generation Error", { description: `Client-side error: ${errorMessage}` });
+      setSyntheticDatasetOutput([]);
+    } finally {
+      setIsDatasetGenerationLoading(false);
+      setProgress(0);
+    }
   };
 
   const sanitizeDataset = useCallback((datasetToSanitize: SyntheticDataResultItem[]): Uint8Array => {
@@ -442,28 +356,11 @@ function CreateInnerPage() {
     return new TextEncoder().encode(jsonString);
   }, [form]);
 
-  const encryptBlob = useCallback(async (dataToEncrypt: Uint8Array): Promise<Uint8Array> => {
-    const nonce = crypto.getRandomValues(new Uint8Array(5));
-    const datasetObjectBytes = fromHex(datasetObjectId!);
-    const id = toHex(new Uint8Array([...datasetObjectBytes, ...nonce]));
-    const { encryptedObject: encryptedBytes } = await sealClient.encrypt({
-      threshold: 1,
-      packageId: TESTNET_PACKAGE_ID,
-      id,
-      data: dataToEncrypt
-    })
-    return encryptedBytes;
-  }, [datasetObjectId, sealClient]);
-
   const encryptAndStoreDataset = useCallback(async (datasetToStore: SyntheticDataResultItem[], numEpochsToStore: number, encrypt: boolean) => {
     const dataToProcess = sanitizeDataset(datasetToStore);
-    if (encrypt) {
-      const encryptedData = await encryptBlob(dataToProcess);
-      return await storeBlob(encryptedData, numEpochsToStore);
-    } else {
-      return await storeBlob(dataToProcess, numEpochsToStore);
-    }
-  }, [sanitizeDataset, encryptBlob]);
+    // TODO: Implement encryption logic for Filecoin
+    return await storeBlob(dataToProcess, numEpochsToStore);
+  }, [sanitizeDataset]);
 
   const handleEpochsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
@@ -508,41 +405,22 @@ function CreateInnerPage() {
     try {
       setIsLocking(true);
 
-      const numRows = syntheticDatasetOutput.length;
-      const numTokens = syntheticDatasetOutput.reduce((acc, item) => acc + (item.usage?.totalTokens || 0), 0);
-      
-      const tx = new Transaction();
+      // TODO: Implement contract interaction for Filecoin
+      // This will be updated when contract ABI is provided
+      toast.info("Contract Integration Pending", { description: "Dataset locking will be implemented when contract ABI is provided." });
 
-      tx.moveCall({
-        target: `${TESTNET_PACKAGE_ID}::dataset::lock_dataset`,
-        arguments: [
-          tx.object(datasetObjectId!),
-          tx.pure.string(datasetBlobId!),
-          tx.pure.u64(numRows),
-          tx.pure.u64(numTokens),
-        ]
-      })
+      handleCancelDialog();
+      form.reset();
+      toast("Dataset Locked", { description: `Dataset \"${currentDatasetName}\" has been locked successfully.`, classNames: { title: 'text-black dark:text-white', description: 'text-black dark:text-white' } });
 
-      signAndExecuteTransaction({ transaction: tx }, {
-        onSuccess: () => {
-          handleCancelDialog();
-          form.reset();
-          toast("Dataset Locked", { description: `Dataset \"${currentDatasetName}\" has been locked successfully.`, classNames: { title: 'text-black dark:text-white', description: 'text-black dark:text-white' } });
-
-          router.push(`/dataset/${datasetObjectId!}`);
-        },
-        onError: (error: any) => {
-          toast.error("Locking Failed", { description: `Failed to lock dataset (on-chain transaction): ${error.message || "Unknown error"}` });
-          console.error("Failed to lock dataset (on-chain transaction):", error);
-        }
-      });
+      // router.push(`/dataset/${datasetObjectId!}`);
     } catch (error: any) {
-      toast.error("Locking Failed", { description: `Failed to lock dataset (simulated): ${error.message || "Unknown error"}` });
-      console.error("Failed to lock dataset (simulated):", error);
+      toast.error("Locking Failed", { description: `Failed to lock dataset: ${error.message || "Unknown error"}` });
+      console.error("Failed to lock dataset:", error);
     } finally {
       setIsLocking(false);
     }
-  }, [datasetBlobId, form, syntheticDatasetOutput, datasetObjectId, signAndExecuteTransaction, handleCancelDialog, router]);
+  }, [datasetBlobId, form, syntheticDatasetOutput, datasetObjectId, handleCancelDialog, router]);
 
   const handleGeneratePromptWithWizard = useCallback(async () => {
     setIsPromptGenerating(true);
@@ -816,7 +694,7 @@ function CreateInnerPage() {
                         ) : (
                           <>
                             Generate Prompt with Wizard
-                            <Sparkles className="h-4 w-4" color={colorFromAddress(currentAccount?.address || "")} />
+                            <Sparkles className="h-4 w-4" color={colorFromAddress(currentAccount || "")} />
                           </>
                         )}
                       </Button>

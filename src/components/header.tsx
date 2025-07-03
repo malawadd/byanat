@@ -8,16 +8,15 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ConnectModal, useCurrentAccount, useDisconnectWallet, useSuiClient } from "@mysten/dapp-kit";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useDisconnect } from 'wagmi';
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const suiClient = useSuiClient();
-  const currentAccount = useCurrentAccount();
+  const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
   const [isCreating, setIsCreating] = useState(false);
-  const { mutate: disconnect } = useDisconnectWallet();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   useEffect(() => {
@@ -25,11 +24,10 @@ export default function Header() {
   }, [pathname]);
 
   useEffect(() => {
-    if (currentAccount) {
-      setIsModalOpen(false);
+    if (isConnected) {
       setIsPopoverOpen(false);
     }
-  }, [currentAccount]);
+  }, [isConnected]);
 
   const handleDisconnect = () => {
     disconnect();
@@ -38,18 +36,16 @@ export default function Header() {
 
   const handleGoToMyPage = () => {
     setIsPopoverOpen(false);
-    if (currentAccount) {
-      router.push(`/user/${currentAccount.address}`);
+    if (address) {
+      router.push(`/user/${address}`);
     }
   };
 
   const resolveNameServiceNames = useCallback(async (address: string) => {
-    const response = await suiClient.resolveNameServiceNames({
-      address,
-      format: "at",
-    });
-    return response.data[0];
-  }, [suiClient])
+    // ENS resolution can be implemented here for Ethereum-based chains
+    // For now, return empty string as placeholder
+    return "";
+  }, []);
 
   return (
     <header className="top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,12 +54,12 @@ export default function Header() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.svg"
-              alt="Suithetic Logo"
+              alt="Bayanat Logo"
               width={32}
               height={32}
               className="rounded-md"
             />
-            <h1 className="text-xl font-bold">Suithetic</h1>
+            <h1 className="text-xl font-bold">Bayanat</h1>
           </Link>
         </div>
 
@@ -73,13 +69,13 @@ export default function Header() {
               Create
             </Button>
           )}
-          {currentAccount ? (
+          {isConnected && address ? (
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
                 <Button variant="outline">
                   <div className="flex items-center space-x-2">
-                    <Avatar address={currentAccount.address} />
-                    <Name address={currentAccount.address} resolveNameServiceNames={resolveNameServiceNames} />
+                    <Avatar address={address} />
+                    <Name address={address} resolveNameServiceNames={resolveNameServiceNames} />
                   </div>
                 </Button>
               </PopoverTrigger>
@@ -95,15 +91,7 @@ export default function Header() {
               </PopoverContent>
             </Popover>
           ) : (
-            <ConnectModal
-              open={isModalOpen}
-              onOpenChange={setIsModalOpen}
-              trigger={
-                <Button variant="outline">
-                  Connect Wallet
-                </Button>
-              }
-            />
+            <ConnectButton />
           )}
         </div>
       </div>

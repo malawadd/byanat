@@ -5,34 +5,34 @@ import Name from "@/components/name";
 import Avatar from "@/components/avatar";
 import { notFound } from "next/navigation";
 import { DatasetObject } from "@/lib/types";
-import { useSuiClient } from "@mysten/dapp-kit";
 import { getPersonalDatasets } from "@/lib/actions";
 import { DatasetList } from "@/components/dataset-list";
 import { use, useCallback, useEffect, useState } from "react";
 
-const isSuiAddress = (address: string) => {
-  return address.startsWith("0x") && address.length === 66;
+const isEthereumAddress = (address: string) => {
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
 };
 
 export default function UserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const suiClient = useSuiClient();
   const [address, setAddress] = useState<string | null>(null);
   const [personalDatasets, setPersonalDatasets] = useState<DatasetObject[]>([]);
 
   const resolveNameServiceAddress = useCallback((name: string) => {
-    return suiClient.resolveNameServiceAddress({ name });
-  }, [suiClient]);
+    // ENS resolution can be implemented here for Ethereum-based chains
+    // For now, return null as placeholder
+    return Promise.resolve(null);
+  }, []);
 
   const getExplorerUrl = (address: string) => {
-    return `https://testnet.suivision.xyz/address/${address}`;
+    return `https://calibration.filscan.io/address/${address}`;
   };
 
   useEffect(() => {
-    if (isSuiAddress(id)) {
+    if (isEthereumAddress(id)) {
       setAddress(id);
     } else {
-      resolveNameServiceAddress(`@${id}`).then((address) => {
+      resolveNameServiceAddress(`${id}.eth`).then((address) => {
         if (address) {
           setAddress(address);
         } else {
@@ -50,12 +50,10 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
   }, [address]);
 
   const resolveNameServiceNames = useCallback(async (address: string) => {
-    const response = await suiClient.resolveNameServiceNames({
-      address,
-      format: "at",
-    });
-    return response.data[0];
-  }, [suiClient])
+    // ENS resolution can be implemented here for Ethereum-based chains
+    // For now, return empty string as placeholder
+    return "";
+  }, []);
 
   return (
     <div className="container mx-auto p-4">

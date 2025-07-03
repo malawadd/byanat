@@ -1,13 +1,9 @@
 "use client";
 
-import { getFullnodeUrl } from "@mysten/sui/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createNetworkConfig, SuiClientProvider, WalletProvider } from "@mysten/dapp-kit";
-
-const { networkConfig } = createNetworkConfig({
-	testnet: { url: getFullnodeUrl("testnet") },
-  mainnet: { url: getFullnodeUrl("mainnet") },
-});
+import { WagmiProvider } from 'wagmi';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { config } from '@/lib/wagmi';
 
 const queryClient = new QueryClient();
 
@@ -17,12 +13,12 @@ export default function Context({
   children: React.ReactNode;
 }>) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SuiClientProvider networks={networkConfig} defaultNetwork={"testnet"}>
-        <WalletProvider autoConnect>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
           {children}
-        </WalletProvider>
-      </SuiClientProvider>
-    </QueryClientProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

@@ -8,7 +8,7 @@ import { DatasetList } from "@/components/dataset-list";
 import { useCallback, useEffect, useState } from "react";
 import { TemplateList } from "@/components/template-list";
 import { X, BrainCircuit, Stethoscope, Bot } from "lucide-react";
-import { useSuiClient, useCurrentAccount } from "@mysten/dapp-kit";
+import { useAccount } from 'wagmi';
 
 const templates: Template[] = [
   {
@@ -72,8 +72,7 @@ const templates: Template[] = [
 ];
 
 export default function Home() {
-  const suiClient = useSuiClient();
-  const currentAccount = useCurrentAccount();
+  const { address } = useAccount();
   const [showTemplates, setShowTemplates] = useState(true);
   const [lockedDatasets, setLockedDatasets] = useState<DatasetObject[]>([]);
 
@@ -84,12 +83,10 @@ export default function Home() {
   }, []);
 
   const resolveNameServiceNames = useCallback(async (address: string) => {
-    const response = await suiClient.resolveNameServiceNames({
-      address,
-      format: "at",
-    });
-    return response.data[0];
-  }, [suiClient])
+    // ENS resolution can be implemented here for Ethereum-based chains
+    // For now, return empty string as placeholder
+    return "";
+  }, []);
 
   return (
     <div className="container mx-auto p-3">
@@ -113,7 +110,7 @@ export default function Home() {
       <div className="mt-6">
         <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Trending Datasets</h2>
         {lockedDatasets.length > 0 && (
-          <DatasetList datasets={lockedDatasets} currentAddress={currentAccount?.address} resolveNameServiceNames={resolveNameServiceNames} />
+          <DatasetList datasets={lockedDatasets} currentAddress={address} resolveNameServiceNames={resolveNameServiceNames} />
         )}
       </div>
     </div>
