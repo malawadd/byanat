@@ -48,6 +48,7 @@ function CreateInnerPage() {
   const [wizardPrompt, setWizardPrompt] = useState<string>("");
   const [wizardPromptGenerated, setWizardPromptGenerated] = useState<boolean>(false);
   const [isPromptGenerating, setIsPromptGenerating] = useState<boolean>(false);
+  const [serviceDown, setServiceDown] = useState(false);
 
   // Computed values
   const selectedModelId = form.watch("modelId");
@@ -58,10 +59,18 @@ function CreateInnerPage() {
   }, [form.watch("inputFeature")]);
 
   // Load models on mount
-  useEffect(() => {
-    getModels().then(setModels);
-  }, []);
-
+useEffect(() => {
+  getModels()
+    .then((models) => {
+      if (!models || models.length === 0) {
+        setServiceDown(true);
+      } else {
+        setModels(models);
+      }
+    })
+    .catch(() => setServiceDown(true));
+}, []);
+  
   // Load dataset data when dataset changes
   useEffect(() => {
     const fetchData = async () => {
@@ -140,18 +149,18 @@ function CreateInnerPage() {
            (!form.watch("isStructured") || jsonSchema);
   }, [form.watch("modelId"), form.watch("inputFeature"), form.watch("prompt"), form.watch("isStructured"), jsonSchema]);
 
-  if (true) {
-    return (
-      <div className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center gap-4 text-center">
-        <ServerOff className="h-16 w-16 text-red-500" />
-        <h1 className="text-3xl font-bold">Atoma Network Unavailable</h1>
-        <p className="max-w-sm text-muted-foreground">
-          We're sorry for the inconvenience, but the Atoma Network is currently
-          unavailable. Please try again later.
-        </p>
-      </div>
-    );
-  }
+if (serviceDown) {
+  return (
+    <div className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center gap-4 text-center">
+      <ServerOff className="h-16 w-16 text-red-500" />
+      <h1 className="text-3xl font-bold">Atoma Network Unavailable</h1>
+      <p className="max-w-sm text-muted-foreground">
+        We're sorry for the inconvenience, but the Atoma Network is currently
+        unavailable. Please try again later.
+      </p>
+    </div>
+  );
+}
 
   return (
     <Form {...form}>
