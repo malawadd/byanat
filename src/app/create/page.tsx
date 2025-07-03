@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { Form } from "@/components/ui/form";
 import { ServerOff } from "lucide-react";
-import { getModels, getRows } from "@/app/lib/actions";
+import { getModels, getRows } from "@/lib/actions";
 import { generatePromptWithWizard } from "@/app/create/actions";
 import { AtomaModel, HFDataset, GenerationConfig } from "@/lib/types";
 
