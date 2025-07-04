@@ -149,18 +149,18 @@ useEffect(() => {
            (!form.watch("isStructured") || jsonSchema);
   }, [form.watch("modelId"), form.watch("inputFeature"), form.watch("prompt"), form.watch("isStructured"), jsonSchema]);
 
-if (serviceDown) {
-  return (
-    <div className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center gap-4 text-center">
-      <ServerOff className="h-16 w-16 text-red-500" />
-      <h1 className="text-3xl font-bold">Atoma Network Unavailable</h1>
-      <p className="max-w-sm text-muted-foreground">
-        We're sorry for the inconvenience, but the Atoma Network is currently
-        unavailable. Please try again later.
-      </p>
-    </div>
-  );
-}
+// if (serviceDown) {
+//   return (
+//     <div className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center gap-4 text-center">
+//       <ServerOff className="h-16 w-16 text-red-500" />
+//       <h1 className="text-3xl font-bold">Atoma Network Unavailable</h1>
+//       <p className="max-w-sm text-muted-foreground">
+//         We're sorry for the inconvenience, but the Atoma Network is currently
+//         unavailable. Please try again later.
+//       </p>
+//     </div>
+//   );
+// }
 
   return (
     <Form {...form}>

@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env
+src/components/DecryptDatasetButton copy 2.tsx
+src/components/DecryptDatasetButton copy 3.tsx
+src/components/DecryptDatasetButton copy.tsx
+src/components/LockDatasetButton copy.tsx
