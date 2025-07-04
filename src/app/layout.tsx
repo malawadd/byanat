@@ -36,7 +36,7 @@ export default function RootLayout({
       <body className={`${orbitron.variable} ${jetbrainsMono.variable} font-sans`}>
         <Context>
           <Header />
-          <main className="min-h-screen bg-background relative">
+          <main className="min-h-screen  relative">
             {children}
           </main>
           <Toaster />
