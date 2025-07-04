@@ -5,15 +5,25 @@ import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import Context from "./context";
 import Header from "@/components/header";
-import { Inter } from "next/font/google";
+import { Orbitron, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Separator } from "@/components/ui/separator";
 
-const inter = Inter({ subsets: ["latin"] });
+const orbitron = Orbitron({ 
+  subsets: ["latin"],
+  variable: "--font-orbitron",
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: "Bayanat",
-  description: "Generated synthetic data on the Filecoin blockchain",
+  title: "BAYANAT - Neural Data Forge",
+  description: "Advanced synthetic data generation on the blockchain",
 };
 
 export default function RootLayout({
@@ -22,14 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning className="dark">
+      <body className={`${orbitron.variable} ${jetbrainsMono.variable} font-sans`}>
         <Context>
-          <div className="min-h-[8vh] flex flex-col justify-center items-center">
-            <Header />
-          </div>
-          <Separator />
-          <main className="min-h-[92vh] bg-background">
+          <Header />
+          <main className="min-h-screen bg-background relative">
             {children}
           </main>
           <Toaster />

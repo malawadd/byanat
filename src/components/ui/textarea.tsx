@@ -5,9 +5,8 @@ import { cn } from "@/lib/utils"
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea
-      data-slot="textarea"
       className={cn(
-        "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "flex min-h-[80px] w-full rounded border border-neon-green/30 bg-black/50 px-3 py-2 text-sm text-neon-green placeholder:text-neon-cyan/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-green/50 focus-visible:border-neon-green disabled:cursor-not-allowed disabled:opacity-50 command-text backdrop-blur-sm resize-none",
         className
       )}
       {...props}

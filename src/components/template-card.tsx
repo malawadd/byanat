@@ -21,28 +21,34 @@ export type Template = {
 
 const colorVariants = {
   blue: {
-    card: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800",
-    button: "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+    card: "border-neon-cyan bg-gradient-to-br from-neon-cyan/5 to-transparent",
+    glow: "neon-cyan",
+    text: "text-neon-cyan"
   },
   purple: {
-    card: "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200 dark:border-purple-800",
-    button: "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+    card: "border-neon-magenta bg-gradient-to-br from-neon-magenta/5 to-transparent",
+    glow: "neon-magenta", 
+    text: "text-neon-magenta"
   },
   green: {
-    card: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800",
-    button: "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+    card: "border-neon-green bg-gradient-to-br from-neon-green/5 to-transparent",
+    glow: "neon-green",
+    text: "text-neon-green"
   },
   orange: {
-    card: "bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800",
-    button: "bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"
+    card: "border-neon-yellow bg-gradient-to-br from-neon-yellow/5 to-transparent",
+    glow: "neon-yellow",
+    text: "text-neon-yellow"
   },
   pink: {
-    card: "bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800",
-    button: "bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800"
+    card: "border-neon-magenta bg-gradient-to-br from-neon-magenta/5 to-transparent",
+    glow: "neon-magenta",
+    text: "text-neon-magenta"
   },
   teal: {
-    card: "bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-950 dark:to-teal-900 border-teal-200 dark:border-teal-800",
-    button: "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800"
+    card: "border-neon-cyan bg-gradient-to-br from-neon-cyan/5 to-transparent",
+    glow: "neon-cyan",
+    text: "text-neon-cyan"
   }
 };
 
@@ -71,13 +77,40 @@ export function TemplateCard({ template }: { template: Template }) {
 
   return (
     <Link href={`/create?${getParams()}`}>
-      <Card className={`${colors.card} hover:shadow-md transition-all duration-200 hover:scale-102`}>
-        <CardHeader>
-          <CardTitle>{template.name}</CardTitle>
-          <CardDescription>{template.description}</CardDescription>
+      <Card className={`${colors.card} hud-panel hover:shadow-lg transition-all duration-300 hover:scale-105 group relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20"></div>
+        <div className="scan-lines absolute inset-0 opacity-30"></div>
+        
+        <CardHeader className="relative">
+          <div className="flex items-center gap-3 mb-2">
+            <div className={`p-2 rounded border ${colors.card} ${colors.text}`}>
+              {template.logo}
+            </div>
+            <div className="status-indicator"></div>
+          </div>
+          <CardTitle className={`command-text ${colors.text} text-lg`}>
+            {template.name.toUpperCase()}
+          </CardTitle>
+          <CardDescription className="command-text text-neon-cyan/70 text-sm">
+            {template.description.toUpperCase()}
+          </CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-center items-center">
-          {template.logo}
+        
+        <CardContent className="relative">
+          <div className="flex justify-between items-center">
+            <div className="command-text text-xs text-neon-green">
+              TOKENS: {template.maxTokens.toLocaleString()}
+            </div>
+            <div className="command-text text-xs text-neon-magenta">
+              ${template.price} USDC
+            </div>
+          </div>
+          
+          <div className="mt-4 p-2 bg-black/30 rounded border border-neon-green/30">
+            <div className="command-text text-xs text-neon-green opacity-70">
+              PROTOCOL.READY
+            </div>
+          </div>
         </CardContent>
       </Card>
     </Link>

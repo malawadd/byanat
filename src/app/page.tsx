@@ -7,10 +7,8 @@ import { Template } from "@/components/template-card";
 import { DatasetList } from "@/components/dataset-list";
 import { useCallback, useEffect, useState } from "react";
 import { TemplateList } from "@/components/template-list";
-import { X, BrainCircuit, Stethoscope, Bot } from "lucide-react";
+import { X, BrainCircuit, Stethoscope, Bot, Zap, Database, Activity } from "lucide-react";
 import { useAccount } from 'wagmi';
-
-
 
 const templates: Template[] = [
   {
@@ -85,36 +83,108 @@ export default function Home() {
   }, []);
 
   const resolveNameServiceNames = useCallback(async (address: string) => {
-    // ENS resolution can be implemented here for Ethereum-based chains
-    // For now, return empty string as placeholder
     return "";
   }, []);
 
   return (
-    <div className="container mx-auto p-3">
-      {showTemplates && templates.length > 0 && (
-        <div className="flex justify-center my-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-4 max-w-xl w-full">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Create from a template</h2>
-              <button
-                onClick={() => setShowTemplates(false)}
-                className="p-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                aria-label="Close templates"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+    <div className="min-h-screen pt-16">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-magenta/5"></div>
+        <div className="scan-lines absolute inset-0"></div>
+        
+        <div className="relative container mx-auto px-4 py-16">
+          {/* Main Hero Content */}
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center mb-6">
+              <div className="radar-sweep w-24 h-24 border border-neon-green/30"></div>
             </div>
-            <TemplateList templates={templates} />
+            
+            <h1 className="text-6xl md:text-8xl font-black mb-6 neon-text text-neon-green">
+              NEURAL FORGE
+            </h1>
+            <p className="text-xl md:text-2xl command-text text-neon-cyan mb-8 max-w-4xl mx-auto">
+              INITIALIZING SYNTHETIC DATA GENERATION PROTOCOLS
+            </p>
+            
+            {/* Status Panel */}
+            <div className="hud-panel max-w-2xl mx-auto p-6 mb-12">
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center">
+                  <Database className="w-8 h-8 text-neon-green mx-auto mb-2" />
+                  <div className="command-text text-sm text-neon-green">DATASETS</div>
+                  <div className="text-2xl font-bold text-neon-green">{lockedDatasets.length}</div>
+                </div>
+                <div className="text-center">
+                  <Activity className="w-8 h-8 text-neon-cyan mx-auto mb-2" />
+                  <div className="command-text text-sm text-neon-cyan">MODELS</div>
+                  <div className="text-2xl font-bold text-neon-cyan">ACTIVE</div>
+                </div>
+                <div className="text-center">
+                  <Zap className="w-8 h-8 text-neon-magenta mx-auto mb-2" />
+                  <div className="command-text text-sm text-neon-magenta">NETWORK</div>
+                  <div className="text-2xl font-bold text-neon-magenta">ONLINE</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Template Selection */}
+          {showTemplates && templates.length > 0 && (
+            <div className="flex justify-center mb-16">
+              <div className="hud-panel max-w-4xl w-full p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold neon-text text-neon-green mb-2">
+                      TEMPLATE PROTOCOLS
+                    </h2>
+                    <p className="command-text text-neon-cyan opacity-70">
+                      SELECT PREDEFINED NEURAL PATTERNS
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowTemplates(false)}
+                    className="p-2 bg-neon-magenta/20 rounded border border-neon-magenta text-neon-magenta hover:bg-neon-magenta/30 transition-colors"
+                    aria-label="Close templates"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <TemplateList templates={templates} />
+              </div>
+            </div>
+          )}
+
+          {/* Datasets Grid */}
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold neon-text text-neon-green mb-4">
+                ACTIVE NEURAL DATASETS
+              </h2>
+              <p className="command-text text-neon-cyan opacity-70 mb-8">
+                SYNCHRONIZED DATA REPOSITORIES
+              </p>
+            </div>
+            
+            {lockedDatasets.length > 0 ? (
+              <DatasetList 
+                datasets={lockedDatasets} 
+                currentAddress={address} 
+                resolveNameServiceNames={resolveNameServiceNames} 
+              />
+            ) : (
+              <div className="hud-panel max-w-2xl mx-auto p-12 text-center">
+                <Database className="w-16 h-16 text-neon-green/50 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-neon-green mb-2">
+                  NO DATASETS DETECTED
+                </h3>
+                <p className="command-text text-neon-cyan opacity-70">
+                  INITIALIZE CREATION PROTOCOL TO BEGIN
+                </p>
+              </div>
+            )}
           </div>
         </div>
-      )}
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Trending Datasets</h2>
-        {lockedDatasets.length > 0 && (
-          <DatasetList datasets={lockedDatasets} currentAddress={address} resolveNameServiceNames={resolveNameServiceNames} />
-        )}
-       
       </div>
     </div>
   );
