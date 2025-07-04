@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { CustomConnectButton } from '@/components/ui/custom-connect-button';
 import { useAccount, useDisconnect } from 'wagmi';
 import { Terminal, Zap, Database, User, LogOut } from "lucide-react";
 
@@ -95,51 +95,7 @@ export default function Header() {
               </Button>
             )}
             
-            {isConnected && address ? (
-              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="hud-panel border-neon-green text-neon-green hover:bg-neon-green/10"
-                    onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Avatar address={address} />
-                      <div className="flex flex-col items-start">
-                        <Name address={address} resolveNameServiceNames={resolveNameServiceNames} />
-                        <span className="text-xs command-text text-neon-cyan opacity-70">
-                          AUTHENTICATED
-                        </span>
-                      </div>
-                    </div>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-2 mt-1 hud-panel border-neon-green">
-                  <div className="grid gap-1">
-                    <Button 
-                      variant="ghost" 
-                      onClick={handleGoToMyPage} 
-                      className="justify-start px-3 py-2 text-neon-green hover:bg-neon-green/10 command-text"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      ACCESS.PROFILE
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      onClick={handleDisconnect} 
-                      className="justify-start px-3 py-2 text-neon-magenta hover:bg-neon-magenta/10 command-text"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      DISCONNECT.SESSION
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            ) : (
-              <div className="hud-panel">
-                <ConnectButton />
-              </div>
-            )}
+            <CustomConnectButton />
           </div>
         </div>
       </div>

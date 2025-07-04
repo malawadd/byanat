@@ -383,3 +383,101 @@
   color: var(--background);
   text-shadow: none;
 }
+
+/* RainbowKit Modal Overrides */
+[data-rk] {
+  --rk-colors-modalBackground: #0a0a0a !important;
+  --rk-colors-modalBorder: #00ff41 !important;
+  --rk-colors-modalText: #00ff41 !important;
+  --rk-colors-modalTextSecondary: #00ffff !important;
+  --rk-colors-profileAction: #1a1a1a !important;
+  --rk-colors-profileActionHover: #262626 !important;
+  --rk-colors-profileForeground: #00ff41 !important;
+  --rk-colors-selectedOptionBorder: #00ff41 !important;
+  --rk-colors-downloadBottomCardBackground: #111111 !important;
+  --rk-colors-downloadTopCardBackground: #1a1a1a !important;
+  --rk-colors-connectionIndicator: #00ff41 !important;
+  --rk-colors-standby: #00ffff !important;
+  --rk-radii-modal: 8px !important;
+  --rk-radii-modalMobile: 8px !important;
+}
+
+/* RainbowKit Modal Styling */
+[data-rk] div[role="dialog"] {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(26, 26, 26, 0.95) 100%) !important;
+  border: 1px solid var(--neon-green) !important;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.3),
+    inset 0 0 20px rgba(0, 255, 65, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-rk] h1 {
+  font-family: 'Orbitron', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--neon-green) !important;
+  text-shadow: 0 0 10px var(--neon-green) !important;
+}
+
+[data-rk] button {
+  font-family: 'JetBrains Mono', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border: 1px solid var(--neon-green) !important;
+  background: rgba(0, 255, 65, 0.1) !important;
+  color: var(--neon-green) !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] button:hover {
+  background: rgba(0, 255, 65, 0.2) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.5) !important;
+}
+
+/* Wallet option styling */
+[data-rk] [data-testid*="wallet-option"] {
+  border: 1px solid rgba(0, 255, 65, 0.3) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] [data-testid*="wallet-option"]:hover {
+  border-color: var(--neon-green) !important;
+  background: rgba(0, 255, 65, 0.1) !important;
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.3) !important;
+}
+
+/* Close button */
+[data-rk] button[aria-label="Close"] {
+  color: var(--neon-magenta) !important;
+  border: 1px solid var(--neon-magenta) !important;
+  background: rgba(255, 0, 128, 0.1) !important;
+}
+
+[data-rk] button[aria-label="Close"]:hover {
+  background: rgba(255, 0, 128, 0.2) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 128, 0.5) !important;
+}
+
+/* Loading states */
+[data-rk] [data-testid="loading-spinner"] {
+  border-color: var(--neon-cyan) !important;
+  border-top-color: transparent !important;
+}
+
+/* Text styling */
+[data-rk] p, [data-rk] span {
+  font-family: 'JetBrains Mono', monospace !important;
+  color: var(--neon-cyan) !important;
+}
+
+/* Recent badge */
+[data-rk] [data-testid*="recent"] {
+  background: var(--neon-cyan) !important;
+  color: var(--background) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  text-transform: uppercase !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+}

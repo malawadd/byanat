@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import '@rainbow-me/rainbowkit/styles.css';
 import { Analytics } from "@vercel/analytics/next";
 
 import "@/app/globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
 import Context from "./context";
 import Header from "@/components/header";
 import { Orbitron, JetBrains_Mono } from "next/font/google";
