@@ -9,11 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { TemplateList } from "@/components/template-list";
 import { X, BrainCircuit, Stethoscope, Bot } from "lucide-react";
 import { useAccount } from 'wagmi';
-import MintDatasetButton from "@/components/test/MintDatasetButton";
-import LockDatasetButton from "@/components/test/LockDatasetButton";
-import BuyDatasetButton from "@/components/test/BuyDatasetButton";
-import DatasetCard from "@/components/test/DatasetCard";
-import DecryptDatasetButton from "@/components/test/DecryptDatasetButton";
+
 
 
 const templates: Template[] = [
@@ -118,11 +114,7 @@ export default function Home() {
         {lockedDatasets.length > 0 && (
           <DatasetList datasets={lockedDatasets} currentAddress={address} resolveNameServiceNames={resolveNameServiceNames} />
         )}
-        <MintDatasetButton />
-        <LockDatasetButton datasetId={BigInt(3)} />
-        <DatasetCard datasetId={BigInt(3)} marketAddress="0x94bbeB401C17FB70C704E28920501752B78dc659"/>
-        <BuyDatasetButton datasetId={BigInt(3)} marketAddress="0x94bbeB401C17FB70C704E28920501752B78dc659" />
-      <DecryptDatasetButton datasetId={BigInt(3)} marketAddress="0x94bbeB401C17FB70C704E28920501752B78dc659" />
+       
       </div>
     </div>
   );
