@@ -6,6 +6,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import { GenerationConfig, HFDataset, AtomaModel } from "@/lib/types";
 import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
+import { DatasetObject } from "@/lib/types";
 
 const atoma = createOpenAI({
   apiKey: process.env.ATOMA_API_KEY,
@@ -138,4 +139,10 @@ export async function getModels(): Promise<AtomaModel[]> {
     console.error("Failed to fetch models:", error);
     return [];
   }
+}
+
+export async function getLockedDatasets(): Promise<DatasetObject[]> {
+  // Placeholder implementation - returns empty array for now
+  // TODO: Implement actual logic to fetch locked datasets from blockchain or API
+  return [];
 }
