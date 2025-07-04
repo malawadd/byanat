@@ -13,7 +13,7 @@ import {
   keccak256,
   recoverPublicKey,
 } from "viem";
-import { uploadJSONToIPFS } from "../app/actions/uploadJSONToIPFS";
+import { uploadJSONToIPFS } from "../../app/actions/uploadJSONToIPFS";
 import { encrypt } from "ecies-geth"; // npm i ecies-geth
 import { encryptString } from '@lit-protocol/encryption';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
