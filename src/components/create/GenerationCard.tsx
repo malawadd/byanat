@@ -1,7 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
+import MintDatasetButton from "@/components/MintDatasetButton";
+import LockDatasetButton from "@/components/LockDatasetButton";
+import { CALIBRATION_BAYANAT_CONTRACT } from "@/lib/constants";
+import { SyntheticDataResultItem } from "@/lib/types";
+import { MintDatasetParams } from "@/hooks/useDatasetMarketplace";
 
 interface GenerationCardProps {
   isGenerating: boolean;
@@ -11,7 +16,13 @@ interface GenerationCardProps {
   hasDataset: boolean;
   hasAccount: boolean;
   onSubmit: () => void;
-  onReopenDialog: () => void;
+  mintedDatasetId: bigint | null;
+  isDatasetLocked: boolean;
+  onDatasetMinted: (datasetId: bigint) => void;
+  onDatasetLocked: () => void;
+  mintParams: Omit<MintDatasetParams, 'priceUSDC'> & { price: number };
+  syntheticDatasetOutput: SyntheticDataResultItem[];
+  inputFeature: string;
 }
 
 export function GenerationCard({
@@ -22,7 +33,13 @@ export function GenerationCard({
   hasDataset,
   hasAccount,
   onSubmit,
-  onReopenDialog
+  mintedDatasetId,
+  isDatasetLocked,
+  onDatasetMinted,
+  onDatasetLocked,
+  mintParams,
+  syntheticDatasetOutput,
+  inputFeature
 }: GenerationCardProps) {
   return (
     <Card>
@@ -33,16 +50,8 @@ export function GenerationCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {hasOutput && !isGenerating ? (
-          <Button
-            type="button"
-            onClick={onReopenDialog}
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
-            size="lg"
-          >
-            Reopen Upload & Lock Dialog
-          </Button>
-        ) : (
+        {/* Step 1: Generate Dataset */}
+        {!hasOutput ? (
           <Button
             type="submit"
             className="w-full bg-[#6750A4] hover:bg-[#6750A4]/90"
@@ -60,6 +69,45 @@ export function GenerationCard({
               "Generate Full Dataset"
             )}
           </Button>
+        ) : !mintedDatasetId ? (
+          /* Step 2: Mint Dataset */
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="h-4 w-4" />
+              <span className="text-sm">Dataset generated successfully!</span>
+            </div>
+            <MintDatasetButton
+              marketAddress={CALIBRATION_BAYANAT_CONTRACT}
+              params={mintParams}
+              onMinted={onDatasetMinted}
+            />
+          </div>
+        ) : !isDatasetLocked ? (
+          /* Step 3: Lock Dataset */
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="h-4 w-4" />
+              <span className="text-sm">Dataset minted with ID: {mintedDatasetId.toString()}</span>
+            </div>
+            <LockDatasetButton
+              marketAddress={CALIBRATION_BAYANAT_CONTRACT}
+              datasetId={mintedDatasetId}
+              syntheticDatasetOutput={syntheticDatasetOutput}
+              inputFeature={inputFeature}
+              onLocked={onDatasetLocked}
+            />
+          </div>
+        ) : (
+          /* Step 4: Complete */
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="h-4 w-4" />
+              <span className="text-sm">Dataset successfully created and locked on-chain!</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Your dataset is now available at: /dataset/{mintedDatasetId.toString()}
+            </p>
+          </div>
         )}
         
         {isGenerating && (

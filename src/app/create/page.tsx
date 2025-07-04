@@ -6,12 +6,16 @@ import { useAccount } from 'wagmi';
 import { toast } from "sonner";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
+import { parseUnits } from "viem";
 
 import { Form } from "@/components/ui/form";
 import { ServerOff } from "lucide-react";
-import { getModels, getRows } from "@/lib/actions";
+import { getModels } from "@/lib/actions";
 import { generatePromptWithWizard } from "@/app/create/actions";
 import { AtomaModel, HFDataset, GenerationConfig } from "@/lib/types";
+import MintDatasetButton from "@/components/MintDatasetButton";
+import LockDatasetButton from "@/components/LockDatasetButton";
+import { CALIBRATION_BAYANAT_CONTRACT } from "@/lib/constants";
 
 // Hooks
 import { useDatasetForm } from "@/hooks/useDatasetForm";
@@ -49,6 +53,8 @@ function CreateInnerPage() {
   const [wizardPromptGenerated, setWizardPromptGenerated] = useState<boolean>(false);
   const [isPromptGenerating, setIsPromptGenerating] = useState<boolean>(false);
   const [serviceDown, setServiceDown] = useState(false);
+  const [mintedDatasetId, setMintedDatasetId] = useState<bigint | null>(null);
+  const [isDatasetLocked, setIsDatasetLocked] = useState<boolean>(false);
 
   // Computed values
   const selectedModelId = form.watch("modelId");
@@ -119,8 +125,8 @@ useEffect(() => {
 
   // Handle form submission
   const onSubmit = async (values: any) => {
-    if (!dataset || !currentAccount) {
-      toast.error("Generation Failed", { description: "Dataset or current account not available for generation." });
+    if (!dataset || !currentAccount || syntheticDatasetOutput.length === 0) {
+      toast.error("Generation Failed", { description: "Dataset, account, or generated data not available." });
       return;
     }
     
@@ -138,7 +144,44 @@ useEffect(() => {
       prompt: values.prompt
     };
 
-    await startGeneration(dataset, generationConfig);
+    // Only start generation if we haven't generated data yet
+    if (syntheticDatasetOutput.length === 0) {
+      await startGeneration(dataset, generationConfig);
+    }
+  };
+
+  // Handle dataset minting
+  const handleDatasetMinted = (datasetId: bigint) => {
+    setMintedDatasetId(datasetId);
+    toast.success(`Dataset minted with ID: ${datasetId.toString()}`);
+  };
+
+  // Handle dataset locking
+  const handleDatasetLocked = () => {
+    setIsDatasetLocked(true);
+    toast.success("Dataset locked successfully! Your synthetic dataset is now available on-chain.");
+  };
+
+  // Prepare mint parameters
+  const getMintParams = () => {
+    const values = form.getValues();
+    const currentModel = models.find(m => m.id === values.modelId);
+    
+    return {
+      hfPath: dataset?.path || "",
+      hfConfig: dataset?.config || "",
+      hfSplit: dataset?.split || "",
+      hfRevision: "main",
+      visibility: values.visibility,
+      name: values.datasetName,
+      description: values.description || "",
+      price: values.price || 0,
+      modelName: currentModel?.id || "",
+      taskSmallId: BigInt(currentModel?.task_small_id || 0),
+      nodeSmallId: BigInt(0), // You may need to adjust this
+      pricePerMilCU: BigInt(currentModel?.price_per_one_million_compute_units || 0),
+      maxNumCU: BigInt(currentModel?.max_num_compute_units || 0),
+    };
   };
 
   // Check if test generation is possible
@@ -220,7 +263,13 @@ useEffect(() => {
                   hasDataset={!!dataset}
                   hasAccount={!!currentAccount}
                   onSubmit={() => form.handleSubmit(onSubmit)()}
-                  onReopenDialog={() => {/* TODO: Implement dialog reopening */}}
+                  mintedDatasetId={mintedDatasetId}
+                  isDatasetLocked={isDatasetLocked}
+                  onDatasetMinted={handleDatasetMinted}
+                  onDatasetLocked={handleDatasetLocked}
+                  mintParams={getMintParams()}
+                  syntheticDatasetOutput={syntheticDatasetOutput}
+                  inputFeature={form.getValues("inputFeature")}
                 />
               </>
             )}

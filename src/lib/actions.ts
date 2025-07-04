@@ -1,18 +1,11 @@
 "use server";
 
 import { z } from "zod";
-import { Buffer } from "buffer";
 import { google } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
-import { TESTNET_PUBLISHERS } from "@/lib/constants";
-import { GenerationConfig, HFDataset, DatasetObject } from "@/lib/types";
+import { GenerationConfig, HFDataset, AtomaModel } from "@/lib/types";
 import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
-import { 
-  CALIBRATION_PACKAGE_ADDRESS, 
-  CALIBRATION_BAYANAT_CONTRACT,
-  TESTNET_DEBUG_OBJECTS 
-} from "@/lib/constants";
 
 const atoma = createOpenAI({
   apiKey: process.env.ATOMA_API_KEY,
@@ -111,249 +104,38 @@ Generated Prompt for Data Synthesis:`;
   return promptObject.prompt;
 }
 
-export const storeBlob = async (encryptedData: Uint8Array, numEpochs: number) => {
-  while (true) {
-    try {
-      const url = TESTNET_PUBLISHERS[Math.floor(Math.random() * TESTNET_PUBLISHERS.length)];
-      const response = await fetch(`${url}/v1/blobs?epochs=${numEpochs}`, {
-        method: "PUT",
-        body: Buffer.from(encryptedData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.newlyCreated.blobObject.blobId;
+export async function getModels(): Promise<AtomaModel[]> {
+  try {
+    const responseModels = await fetch("https://api.atoma.network/v1/models", {
+      headers: {
+        "Authorization": `Bearer ${process.env.ATOMA_API_KEY}`
       }
-    } catch (error) {
-      console.error(error);
+    });
+
+    if (!responseModels.ok) {
+      return [];
     }
-  }
-}
 
-export async function getModels() {
-  const responseModels = await fetch("https://api.atoma.network/v1/models", {
-    headers: {
-      "Authorization": `Bearer ${process.env.ATOMA_API_KEY}`
-    }
-  });
+    const data = (await responseModels.json()).data;
 
-  if (!responseModels.ok) {
-    return [];
-  }
+    const responseTasks = await fetch("https://credentials.atoma.network/tasks");
+    const tasks = await responseTasks.json();
 
-  const data = (await responseModels.json()).data;
+    const responseSubscriptions = await fetch("https://credentials.atoma.network/subscriptions");
+    const subscriptions = await responseSubscriptions.json();
 
-  const responseTasks = await fetch("https://credentials.atoma.network/tasks");
-  const tasks = await responseTasks.json();
-
-  const responseSubscriptions = await fetch("https://credentials.atoma.network/subscriptions");
-  const subscriptions = await responseSubscriptions.json();
-
-  return data.map((model: any) => {
-    const task = tasks.find((task: any) => task[0].model_name === model.id);
-    const subscription = subscriptions.find((subscription: any) => subscription.task_small_id === task[0].task_small_id);
-    return {
-      ...model,
-      task_small_id: task[0].task_small_id,
-      price_per_one_million_compute_units: subscription.price_per_one_million_compute_units,
-      max_num_compute_units: subscription.max_num_compute_units
-    }
-  });
-}
-
-export async function getBlob(blobId: string) {
-  // For now, we'll keep the Walrus blob storage as it's a decentralized storage solution
-  // This can be replaced with IPFS or other decentralized storage later
-  const { TESTNET_AGGREGATORS } = await import("@/lib/constants");
-  
-  while (true) {
-    try {
-      const url = TESTNET_AGGREGATORS[Math.floor(Math.random() * TESTNET_AGGREGATORS.length)];
-      const response = await fetch(`${url}/v1/blobs/${blobId}`);
-      if (response.ok) {
-        const data = await response.arrayBuffer();
-        return new Uint8Array(data);
+    return data.map((model: any) => {
+      const task = tasks.find((task: any) => task[0].model_name === model.id);
+      const subscription = subscriptions.find((subscription: any) => subscription.task_small_id === task[0].task_small_id);
+      return {
+        ...model,
+        task_small_id: task[0].task_small_id,
+        price_per_one_million_compute_units: subscription.price_per_one_million_compute_units,
+        max_num_compute_units: subscription.max_num_compute_units
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-}
-
-// Mock functions for Filecoin Calibration - these will need to be implemented with actual contract calls
-const _mapRawObjectToDatasetObject = (rawObject: any): DatasetObject => {
-  // This is a placeholder mapping function
-  // In a real implementation, this would parse the contract response
-  return {
-    id: rawObject.id || "0x0",
-    version: rawObject.version || 1,
-    owner: rawObject.owner || "0x0",
-    name: rawObject.name || "Unknown Dataset",
-    description: rawObject.description || "",
-    price: rawObject.price || 0,
-    visibility: {
-      inner: rawObject.visibility || 0,
-    },
-    blobId: rawObject.blobId || "",
-    metadata: {
-      numRows: rawObject.numRows || 0,
-      numTokens: rawObject.numTokens || 0,
-    },
-    hfMetadata: {
-      path: rawObject.hfPath || "",
-      config: rawObject.hfConfig || "",
-      split: rawObject.hfSplit || "",
-      revision: rawObject.hfRevision || "main",
-    },
-    stats: {
-      numDownloads: rawObject.numDownloads || 0,
-    },
-    modelMetadata: {
-      name: rawObject.modelName || "",
-      taskSmallId: rawObject.taskSmallId || 0,
-      nodeSmallId: rawObject.nodeSmallId || 0,
-      pricePerOneMillionComputeUnits: rawObject.pricePerOneMillionComputeUnits || 0,
-      maxNumComputeUnits: rawObject.maxNumComputeUnits || 0,
-    },
-    allowlist: rawObject.allowlist || [],
-  };
-};
-
-export async function getDataset(id: string): Promise<DatasetObject> {
-  // TODO: Implement actual contract call to Filecoin Calibration
-  // This is a placeholder that should be replaced with actual contract interaction
-  
-  try {
-    // Placeholder for contract call
-    // const contract = new ethers.Contract(CALIBRATION_BAYANAT_CONTRACT, ABI, provider);
-    // const result = await contract.getDataset(id);
-    
-    // For now, return a mock dataset
-    const mockDataset = {
-      id,
-      version: 1,
-      owner: "0x0000000000000000000000000000000000000000",
-      name: "Mock Dataset",
-      description: "This is a mock dataset for development",
-      price: 0,
-      visibility: 0,
-      blobId: "",
-      numRows: 0,
-      numTokens: 0,
-      hfPath: "",
-      hfConfig: "",
-      hfSplit: "",
-      hfRevision: "main",
-      numDownloads: 0,
-      modelName: "",
-      taskSmallId: 0,
-      nodeSmallId: 0,
-      pricePerOneMillionComputeUnits: 0,
-      maxNumComputeUnits: 0,
-      allowlist: [],
-    };
-
-    return _mapRawObjectToDatasetObject(mockDataset);
+    });
   } catch (error) {
-    throw new Error(`Dataset object ${id} not found or contract call failed: ${error}`);
-  }
-}
-
-export async function getLockedDatasets(): Promise<DatasetObject[]> {
-  // TODO: Implement actual contract event querying for Filecoin Calibration
-  // This is a placeholder that should be replaced with actual contract interaction
-  
-  try {
-    // Placeholder for contract event query
-    // const contract = new ethers.Contract(CALIBRATION_BAYANAT_CONTRACT, ABI, provider);
-    // const events = await contract.queryFilter('DatasetLockedEvent');
-    
-    // For now, return empty array
-    return [];
-  } catch (error) {
-    console.error("Failed to fetch locked datasets:", error);
+    console.error("Failed to fetch models:", error);
     return [];
   }
-}
-
-export async function getPersonalDatasets(address: string): Promise<DatasetObject[]> {
-  if (!address) return [];
-
-  // TODO: Implement actual contract call to get user's datasets
-  // This is a placeholder that should be replaced with actual contract interaction
-  
-  try {
-    // Placeholder for contract call
-    // const contract = new ethers.Contract(CALIBRATION_BAYANAT_CONTRACT, ABI, provider);
-    // const datasets = await contract.getUserDatasets(address);
-    
-    // For now, return empty array
-    return [];
-  } catch (error) {
-    console.error("Failed to fetch personal datasets:", error);
-    return [];
-  }
-}
-
-// Placeholder functions for contract interactions
-export async function mintDataset(params: {
-  datasetName: string;
-  description: string;
-  visibility: number;
-  price: number;
-  hfPath: string;
-  hfConfig: string;
-  hfSplit: string;
-  hfRevision: string;
-  modelId: string;
-  taskSmallId: number;
-  nodeSmallId: number;
-  pricePerOneMillionComputeUnits: number;
-  maxNumComputeUnits: number;
-}) {
-  // TODO: Implement actual contract call to mint dataset
-  // This should interact with the Filecoin Calibration smart contract
-  console.log("Minting dataset with params:", params);
-  
-  // Return mock transaction hash
-  return "0x0000000000000000000000000000000000000000000000000000000000000000";
-}
-
-export async function lockDataset(params: {
-  datasetId: string;
-  blobId: string;
-  numRows: number;
-  numTokens: number;
-}) {
-  // TODO: Implement actual contract call to lock dataset
-  // This should interact with the Filecoin Calibration smart contract
-  console.log("Locking dataset with params:", params);
-  
-  // Return mock transaction hash
-  return "0x0000000000000000000000000000000000000000000000000000000000000000";
-}
-
-export async function purchaseDatasetAccess(datasetId: string, price: number) {
-  // TODO: Implement actual contract call to purchase dataset access
-  // This should interact with the Filecoin Calibration smart contract
-  console.log("Purchasing dataset access:", { datasetId, price });
-  
-  // Return mock transaction hash
-  return "0x0000000000000000000000000000000000000000000000000000000000000000";
-}
-
-export async function updateDatasetVisibility(datasetId: string, visibility: number) {
-  // TODO: Implement actual contract call to update dataset visibility
-  console.log("Updating dataset visibility:", { datasetId, visibility });
-  
-  // Return mock transaction hash
-  return "0x0000000000000000000000000000000000000000000000000000000000000000";
-}
-
-export async function updateDatasetPrice(datasetId: string, price: number) {
-  // TODO: Implement actual contract call to update dataset price
-  console.log("Updating dataset price:", { datasetId, price });
-  
-  // Return mock transaction hash
-  return "0x0000000000000000000000000000000000000000000000000000000000000000";
 }
