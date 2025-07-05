@@ -12,8 +12,11 @@ import { CALIBRATION_BAYANAT_CONTRACT } from "@/lib/constants";
 import { Address } from "viem";
 
 // Import the new components
-import { DatasetDetailsSection } from "@/components/dataset/DatasetDetailsSection";
-import { DatasetActionsSection } from "@/components/dataset/DatasetActionsSection";
+import { DatasetHeader } from "@/components/dataset/DatasetHeader";
+import { DatasetDescription } from "@/components/dataset/DatasetDescription";
+import { DatasetDetailsCard } from "@/components/dataset/DatasetDetailsCard";
+import { DatasetActionsCard } from "@/components/dataset/DatasetActionsCard";
+import { EditDatasetDialog } from "@/components/dataset/EditDatasetDialog";
 import { IpfsDatasetContent } from "@/components/dataset/IpfsDatasetContent";
 
 export default function DatasetPage({ params }: { params: Promise<{ id: string }> }) {
@@ -192,24 +195,21 @@ export default function DatasetPage({ params }: { params: Promise<{ id: string }
         </div>
       )}
 
+      {/* Dataset Header */}
+      <DatasetHeader
+        dataset={dataset}
+        isOwner={isOwner}
+        currentAccount={currentAccount}
+        resolveNameServiceNames={resolveNameServiceNames}
+        onEditClick={() => setIsEditing(true)}
+        isProcessingTx={isProcessingTx}
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Dataset Details */}
-          <DatasetDetailsSection
-            dataset={dataset}
-            isOwner={isOwner}
-            currentAccount={currentAccount}
-            resolveNameServiceNames={resolveNameServiceNames}
-            editablePrice={editablePrice}
-            setEditablePrice={setEditablePrice}
-            editableVisibility={editableVisibility}
-            setEditableVisibility={setEditableVisibility}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            isProcessingTx={isProcessingTx}
-            handleSaveChanges={handleSaveChanges}
-          />
+          {/* Dataset Description */}
+          <DatasetDescription dataset={dataset} />
 
           {/* IPFS Dataset Content */}
           {dataset.blobId && (
@@ -225,8 +225,9 @@ export default function DatasetPage({ params }: { params: Promise<{ id: string }
         </div>
 
         {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <DatasetActionsSection
+        <div className="lg:col-span-1 space-y-6">
+          {/* Actions Card */}
+          <DatasetActionsCard
             dataset={dataset}
             currentAccount={currentAccount}
             hasAccess={hasAccess}
@@ -236,8 +237,23 @@ export default function DatasetPage({ params }: { params: Promise<{ id: string }
             handleDownload={handleDownload}
             marketAddress={CALIBRATION_BAYANAT_CONTRACT as Address}
           />
+
+          {/* Details Card */}
+          <DatasetDetailsCard dataset={dataset} />
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      <EditDatasetDialog
+        isOpen={isEditing}
+        onOpenChange={setIsEditing}
+        editablePrice={editablePrice}
+        setEditablePrice={setEditablePrice}
+        editableVisibility={editableVisibility}
+        setEditableVisibility={setEditableVisibility}
+        isProcessingTx={isProcessingTx}
+        handleSaveChanges={handleSaveChanges}
+      />
     </div>
   );
 }
