@@ -13,7 +13,7 @@ import { CALIBRATION_BAYANAT_CONTRACT } from "@/lib/constants";
 
 const atoma = createOpenAI({
   apiKey: process.env.ATOMA_API_KEY,
-  baseURL: "https://api.atoma.network/v1",
+  baseURL: "https://api.sambanova.ai/v1",
 });
 
 // Initialize Viem public client for Filecoin Calibration
