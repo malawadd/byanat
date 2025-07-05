@@ -1,99 +1,163 @@
 [
-	{
-	  "inputs": [
-		{ "internalType": "uint256", "name": "id", "type": "uint256" }
-	  ],
-	  "name": "getCore",
-	  "outputs": [
-		{ "internalType": "uint8", "name": "version", "type": "uint8" },
-		{ "internalType": "address", "name": "owner", "type": "address" },
-		{ "internalType": "uint256", "name": "price", "type": "uint256" },
-		{ "internalType": "enum DatasetMarketplace.Visibility", "name": "vis", "type": "uint8" },
-		{ "internalType": "uint256", "name": "balance", "type": "uint256" },
-		{ "internalType": "uint256", "name": "downloads", "type": "uint256" },
-		{ "internalType": "string", "name": "name", "type": "string" },
-		{ "internalType": "string", "name": "description", "type": "string" }
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
-	  "inputs": [],
-	  "name": "usdc",
-	  "outputs": [
-		{ "internalType": "contract IERC20", "name": "", "type": "address" }
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
-	  "inputs": [
-		{ "internalType": "uint256", "name": "id", "type": "uint256" }
-	  ],
-	  "name": "downloadDataset",
-	  "outputs": [],
-	  "stateMutability": "nonpayable",
-	  "type": "function"
-	},
-	{
-	  "inputs": [
-		{ "internalType": "uint256", "name": "id", "type": "uint256" },
-		{ "internalType": "address", "name": "user", "type": "address" }
-	  ],
-	  "name": "canDecrypt",
-	  "outputs": [
-		{ "internalType": "bool", "name": "", "type": "bool" }
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
-	  "inputs": [
-		{ "internalType": "uint256", "name": "id", "type": "uint256" }
-	  ],
-	  "name": "getStorageInfo",
-	  "outputs": [
-		{ "internalType": "bytes", "name": "", "type": "bytes" },
-		{ "internalType": "bytes", "name": "", "type": "bytes" }
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
-	  "inputs": [
-		{ "internalType": "uint256", "name": "id", "type": "uint256" },
-		{ "internalType": "bytes", "name": "encryptedCid", "type": "bytes" },
-		{ "internalType": "bytes", "name": "encSymKey", "type": "bytes" },
-		{ "internalType": "uint256", "name": "numRows", "type": "uint256" },
-		{ "internalType": "uint256", "name": "numTokens", "type": "uint256" }
-	  ],
-	  "name": "lockDataset",
-	  "outputs": [],
-	  "stateMutability": "nonpayable",
-	  "type": "function"
-	},
-	{
-	  "inputs": [
-		{ "internalType": "string", "name": "hfPath", "type": "string" },
-		{ "internalType": "string", "name": "hfConfig", "type": "string" },
-		{ "internalType": "string", "name": "hfSplit", "type": "string" },
-		{ "internalType": "string", "name": "hfRevision", "type": "string" },
-		{ "internalType": "enum DatasetMarketplace.Visibility", "name": "vis", "type": "uint8" },
-		{ "internalType": "string", "name": "name", "type": "string" },
-		{ "internalType": "string", "name": "description", "type": "string" },
-		{ "internalType": "uint256", "name": "priceUSDC", "type": "uint256" },
-		{ "internalType": "string", "name": "modelName", "type": "string" },
-		{ "internalType": "uint64", "name": "taskSmallId", "type": "uint64" },
-		{ "internalType": "uint64", "name": "nodeSmallId", "type": "uint64" },
-		{ "internalType": "uint64", "name": "pricePerMilCU", "type": "uint64" },
-		{ "internalType": "uint64", "name": "maxNumCU", "type": "uint64" }
-	  ],
-	  "name": "mintDataset",
-	  "outputs": [
-		{ "internalType": "uint256", "name": "id", "type": "uint256" }
-	  ],
-	  "stateMutability": "nonpayable",
-	  "type": "function"
-	}
-  ]
-  
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "getCore",
+    "outputs": [
+      { "internalType": "uint8", "name": "version", "type": "uint8" },
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "uint256", "name": "price", "type": "uint256" },
+      { "internalType": "enum DatasetMarketplace.Visibility", "name": "vis", "type": "uint8" },
+      { "internalType": "uint256", "name": "balance", "type": "uint256" },
+      { "internalType": "uint256", "name": "downloads", "type": "uint256" },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "description", "type": "string" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "getHFDatasetMeta",
+    "outputs": [
+      { "internalType": "string", "name": "hfPath", "type": "string" },
+      { "internalType": "string", "name": "hfConfig", "type": "string" },
+      { "internalType": "string", "name": "hfSplit", "type": "string" },
+      { "internalType": "string", "name": "hfRevision", "type": "string" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "getModelMeta",
+    "outputs": [
+      { "internalType": "string", "name": "modelName", "type": "string" },
+      { "internalType": "uint64", "name": "taskSmallId", "type": "uint64" },
+      { "internalType": "uint64", "name": "nodeSmallId", "type": "uint64" },
+      { "internalType": "uint64", "name": "pricePerMilCU", "type": "uint64" },
+      { "internalType": "uint64", "name": "maxNumCU", "type": "uint64" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "getDatasetMeta",
+    "outputs": [
+      { "internalType": "uint256", "name": "numRows", "type": "uint256" },
+      { "internalType": "uint256", "name": "numTokens", "type": "uint256" },
+      { "internalType": "bool", "name": "populated", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "getBuyerCount",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "uint256", "name": "index", "type": "uint256" }
+    ],
+    "name": "getBuyerAt",
+    "outputs": [
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdc",
+    "outputs": [
+      { "internalType": "contract IERC20", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "downloadDataset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "address", "name": "user", "type": "address" }
+    ],
+    "name": "canDecrypt",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "name": "getStorageInfo",
+    "outputs": [
+      { "internalType": "bytes", "name": "", "type": "bytes" },
+      { "internalType": "bytes", "name": "", "type": "bytes" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "bytes", "name": "encryptedCid", "type": "bytes" },
+      { "internalType": "bytes", "name": "encSymKey", "type": "bytes" },
+      { "internalType": "uint256", "name": "numRows", "type": "uint256" },
+      { "internalType": "uint256", "name": "numTokens", "type": "uint256" }
+    ],
+    "name": "lockDataset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "hfPath", "type": "string" },
+      { "internalType": "string", "name": "hfConfig", "type": "string" },
+      { "internalType": "string", "name": "hfSplit", "type": "string" },
+      { "internalType": "string", "name": "hfRevision", "type": "string" },
+      { "internalType": "enum DatasetMarketplace.Visibility", "name": "vis", "type": "uint8" },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "description", "type": "string" },
+      { "internalType": "uint256", "name": "priceUSDC", "type": "uint256" },
+      { "internalType": "string", "name": "modelName", "type": "string" },
+      { "internalType": "uint64", "name": "taskSmallId", "type": "uint64" },
+      { "internalType": "uint64", "name": "nodeSmallId", "type": "uint64" },
+      { "internalType": "uint64", "name": "pricePerMilCU", "type": "uint64" },
+      { "internalType": "uint64", "name": "maxNumCU", "type": "uint64" }
+    ],
+    "name": "mintDataset",
+    "outputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
