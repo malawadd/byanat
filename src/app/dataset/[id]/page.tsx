@@ -41,9 +41,9 @@ export default function DatasetPage({ params }: { params: Promise<{ id: string }
     return /^0x[a-fA-F0-9]{40}$/.test(address);
   }
 
-  if (!isEthereumAddress(id)) {
-    notFound();
-  }
+  // if (!isEthereumAddress(id)) {
+  //   notFound();
+  // }
 
   const { address: currentAccount } = useAccount();
   const { writeContract } = useWriteContract();
@@ -281,7 +281,7 @@ export default function DatasetPage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto pt-30 sm:pt-20 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex-grow">
           <div className="flex items-center gap-2 mb-1">

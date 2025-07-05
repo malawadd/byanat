@@ -56,7 +56,7 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto  pt-30 sm:pt-30 ">
       {address && (
         <div className="flex items-center space-x-4 p-4 border-b border-gray-200">
           <Avatar address={address} />
