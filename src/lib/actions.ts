@@ -240,6 +240,9 @@ function mapContractDataToDatasetObject(
 
 export async function getDataset(id: string): Promise<DatasetObject | null> {
   try {
+    console.log(`🔍 Fetching dataset with ID: ${id}`);
+    console.log(`📍 Contract address: ${CALIBRATION_BAYANAT_CONTRACT}`);
+    
     const datasetId = BigInt(id);
     
     // Fetch all required data from the contract
@@ -276,10 +279,21 @@ export async function getDataset(id: string): Promise<DatasetObject | null> {
       }),
     ]);
 
+    console.log(`📊 Raw contract data for dataset ${id}:`, {
+      coreData,
+      hfMeta,
+      modelMeta,
+      datasetMeta,
+      storageInfo
+    });
+
     // Check if dataset exists (version 0 means not minted/doesn't exist)
     if (!coreData || !Array.isArray(coreData) || Number(coreData[0]) === 0) {
+      console.log(`❌ Dataset ${id} does not exist (version: ${coreData?.[0]})`);
       return null;
     }
+
+    console.log(`✅ Dataset ${id} exists with version: ${coreData[0]}`);
 
     // Build allowlist
     const allowlist = await buildAllowlist(datasetId);
@@ -295,7 +309,11 @@ export async function getDataset(id: string): Promise<DatasetObject | null> {
       allowlist
     );
   } catch (error) {
-    console.error(`Failed to fetch dataset ${id}:`, error);
+    console.error(`❌ Failed to fetch dataset ${id}:`, error);
+    console.error(`Error details:`, {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return null;
   }
 }
@@ -304,11 +322,17 @@ export async function getLockedDatasets(): Promise<DatasetObject[]> {
   const MAX_CONSECUTIVE_EMPTY = 3;
   const MAX_DATASET_ID = 100; // Reasonable upper bound to prevent infinite loops
   
+  console.log(`🚀 Starting dataset discovery...`);
+  console.log(`📍 Contract address: ${CALIBRATION_BAYANAT_CONTRACT}`);
+  console.log(`⚙️ Max consecutive empty: ${MAX_CONSECUTIVE_EMPTY}`);
+  console.log(`⚙️ Max dataset ID: ${MAX_DATASET_ID}`);
+  
   const foundDatasets: DatasetObject[] = [];
   let consecutiveEmptyCount = 0;
 
   try {
     for (let i = 1; i <= MAX_DATASET_ID; i++) {
+      console.log(`🔍 Checking dataset ID: ${i}`);
       try {
         const dataset = await getDataset(i.toString());
         
@@ -316,34 +340,37 @@ export async function getLockedDatasets(): Promise<DatasetObject[]> {
           // Found a valid dataset
           foundDatasets.push(dataset);
           consecutiveEmptyCount = 0; // Reset counter
-          console.log(`Found dataset ${i}: ${dataset.name}`);
+          console.log(`✅ Found dataset ${i}: ${dataset.name}`);
         } else {
           // No dataset found for this ID
           consecutiveEmptyCount++;
-          console.log(`No dataset found for ID ${i}, consecutive empty: ${consecutiveEmptyCount}`);
+          console.log(`❌ No dataset found for ID ${i}, consecutive empty: ${consecutiveEmptyCount}`);
           
           // Stop if we've hit the consecutive empty limit
           if (consecutiveEmptyCount >= MAX_CONSECUTIVE_EMPTY) {
-            console.log(`Stopping search after ${consecutiveEmptyCount} consecutive empty datasets`);
+            console.log(`🛑 Stopping search after ${consecutiveEmptyCount} consecutive empty datasets`);
             break;
           }
         }
       } catch (error) {
-        console.error(`Error fetching dataset ${i}:`, error);
+        console.error(`❌ Error fetching dataset ${i}:`, error);
         consecutiveEmptyCount++;
         
         // Stop if we've hit the consecutive empty limit
         if (consecutiveEmptyCount >= MAX_CONSECUTIVE_EMPTY) {
-          console.log(`Stopping search after ${consecutiveEmptyCount} consecutive errors`);
+          console.log(`🛑 Stopping search after ${consecutiveEmptyCount} consecutive errors`);
           break;
         }
       }
     }
 
-    console.log(`Found ${foundDatasets.length} datasets total`);
+    console.log(`🎯 Discovery complete! Found ${foundDatasets.length} datasets total`);
+    if (foundDatasets.length > 0) {
+      console.log(`📋 Dataset summary:`, foundDatasets.map(d => ({ id: d.id, name: d.name, owner: d.owner })));
+    }
     return foundDatasets;
   } catch (error) {
-    console.error("Failed to fetch locked datasets:", error);
+    console.error("❌ Failed to fetch locked datasets:", error);
     return [];
   }
 }

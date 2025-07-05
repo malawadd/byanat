@@ -75,11 +75,27 @@ export default function Home() {
   const { address } = useAccount();
   const [showTemplates, setShowTemplates] = useState(true);
   const [lockedDatasets, setLockedDatasets] = useState<DatasetObject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getLockedDatasets().then(datasets => {
-      setLockedDatasets(datasets);
-    });
+    const fetchDatasets = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        console.log("🔄 Starting to fetch datasets...");
+        const datasets = await getLockedDatasets();
+        console.log("📊 Received datasets:", datasets);
+        setLockedDatasets(datasets);
+      } catch (err) {
+        console.error("❌ Error fetching datasets:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch datasets");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchDatasets();
   }, []);
 
   const resolveNameServiceNames = useCallback(async (address: string) => {
@@ -172,6 +188,33 @@ export default function Home() {
                 currentAddress={address} 
                 resolveNameServiceNames={resolveNameServiceNames} 
               />
+            ) : isLoading ? (
+              <div className="hud-panel max-w-2xl mx-auto p-12 text-center">
+                <Database className="w-16 h-16 text-neon-cyan/50 mx-auto mb-4 animate-pulse" />
+                <h3 className="text-xl font-bold text-neon-cyan mb-2">
+                  SCANNING NEURAL NETWORKS...
+                </h3>
+                <p className="command-text text-neon-green opacity-70">
+                  SEARCHING FOR ACTIVE DATASETS
+                </p>
+              </div>
+            ) : error ? (
+              <div className="hud-panel max-w-2xl mx-auto p-12 text-center">
+                <Database className="w-16 h-16 text-red-500/50 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-red-500 mb-2">
+                  CONNECTION ERROR
+                </h3>
+                <p className="command-text text-red-400 opacity-70 mb-4">
+                  {error}
+                </p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  variant="outline"
+                  className="command-text"
+                >
+                  RETRY CONNECTION
+                </Button>
+              </div>
             ) : (
               <div className="hud-panel max-w-2xl mx-auto p-12 text-center">
                 <Database className="w-16 h-16 text-neon-green/50 mx-auto mb-4" />

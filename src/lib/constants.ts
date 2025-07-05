@@ -4,7 +4,7 @@ export const ED25519_SIGNATURE_LENGTH = 64;
 // Filecoin Calibration Network Constants
 export const CALIBRATION_CHAIN_ID = 314159;
 export const CALIBRATION_PACKAGE_ADDRESS = "0x0000000000000000000000000000000000000000"; // To be updated
-export const CALIBRATION_BAYANAT_CONTRACT = "0x94bbeB401C17FB70C704E28920501752B78dc659"; // Updated with actual contract address
+export const CALIBRATION_BAYANAT_CONTRACT = "0x94bbeB401C17FB70C704E28920501752B78dc659" as const; // Updated with actual contract address
 export const CALIBRATION_USDC_ADDRESS = "0x0000000000000000000000000000000000000000"; // To be updated
 
 export const TESTNET_DEBUG_OBJECTS = [
