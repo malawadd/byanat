@@ -16,7 +16,7 @@ Bayanat is a cutting-edge platform that combines AI-powered synthetic data gener
 ### 🔗 Blockchain Integration
 - **Dataset Minting**: Mint datasets as NFTs on the Filecoin Calibration network
 - **On-chain Marketplace**: Buy, sell, and trade synthetic datasets
-- **Decentralized Storage**: Secure dataset storage using IPFS and Walrus
+- **Decentralized Storage**: Secure dataset storage using IPFS 
 - **Smart Contract Integration**: Automated pricing, access control, and revenue distribution
 
 ### 🔐 Advanced Security & Privacy
@@ -43,7 +43,7 @@ Bayanat is a cutting-edge platform that combines AI-powered synthetic data gener
 - **Styling**: Tailwind CSS with custom cyberpunk theme
 - **Blockchain**: Wagmi, Viem, RainbowKit
 - **AI Integration**: Vercel AI SDK, OpenAI, Google AI
-- **Storage**: IPFS (Pinata), Walrus Protocol
+- **Storage**: IPFS (Pinata)
 - **Encryption**: Lit Protocol
 - **Forms**: React Hook Form with Zod validation
 
@@ -61,7 +61,7 @@ Before running this project, make sure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/malawadd/byanat.git
 cd bayanat-neural-forge
 ```
 
@@ -84,11 +84,12 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 # Required: Pinata JWT for IPFS storage
 PINATA_JWT=your_pinata_jwt_token
 
-# Required: API key for AI model access
-ATOMA_API_KEY=your_atoma_api_key
-
-# Optional: OpenAI API key (if using OpenAI models)
+# Required: OpenAI API key 
 OPENAI_API_KEY=your_openai_api_key
+
+# Required: OpenAI API key 
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+
 ```
 
 #### How to Get API Keys:
@@ -103,10 +104,6 @@ OPENAI_API_KEY=your_openai_api_key
 2. Go to API Keys section
 3. Create a new JWT token with appropriate permissions
 
-**Atoma API Key:**
-1. Visit [Atoma Network](https://atoma.network/)
-2. Sign up for an account
-3. Generate an API key from your dashboard
 
 ### 4. Start the Development Server
 
@@ -186,36 +183,18 @@ Ensure all environment variables are properly set in your production environment
 
 - Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` to your production WalletConnect project
 - Configure `PINATA_JWT` with production Pinata credentials
-- Set `ATOMA_API_KEY` for AI model access
+- Set `OPENAI_API_KEY` for AI model access
+- Set `GOOGLE_GENERATIVE_AI_API_KEY` for AI model access
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](../../issues) page for existing solutions
-2. Create a new issue with detailed information
-3. Join our community discussions
 
 ## 🔮 Roadmap
 
-- [ ] Support for additional blockchain networks
+- [ ] Support for decentralized ai providers
 - [ ] Enhanced AI model selection
 - [ ] Advanced dataset analytics
 - [ ] Collaborative dataset creation
 - [ ] API access for developers
-- [ ] Mobile application
+
 
 ---
 
