@@ -8,5 +8,6 @@ export async function uploadJSONToIPFS(json: unknown): Promise<string> {
   if (!process.env.PINATA_JWT) throw new Error('PINATA_JWT missing');
 
   const { IpfsHash } = await pinata.pinJSONToIPFS(json);
+  console.log('Uploaded JSON to IPFS:', IpfsHash);
   return IpfsHash;                           // e.g. Qm…CID
 }

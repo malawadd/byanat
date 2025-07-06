@@ -37,6 +37,8 @@ type ResponseBody = {
 export async function generateRow(row: string, config: GenerationConfig, maxTokens: number) {
   try {
     const prompt = config.prompt.replace("{input}", row);
+    console.log("Generating row with prompt:", prompt);
+
 
     if (config.jsonSchema) {
       const { object, usage, response: { body } } = await generateObject({
@@ -45,6 +47,9 @@ export async function generateRow(row: string, config: GenerationConfig, maxToke
         schema: JSONSchemaToZod.convert(config.jsonSchema),
         maxTokens,
       });
+      console.log("Generated object:", object);
+      console.log("Usage stats:", usage);
+      console.log("Response body:", body);
 
       const { signature, response_hash } = body as ResponseBody;
 
@@ -114,40 +119,103 @@ Generated Prompt for Data Synthesis:`;
   return promptObject.prompt;
 }
 
+// export async function getModels(): Promise<AtomaModel[]> {
+//   try {
+//     const responseModels = await fetch("https://api.sambanova.ai/v1/models", {
+//       headers: {
+//         "Authorization": `Bearer ${process.env.ATOMA_API_KEY}`
+//       }
+//     });
+
+//     if (!responseModels.ok) {
+//       return [];
+//     }
+
+//     const data = (await responseModels.json()).data;
+
+//     const responseTasks = await fetch("https://credentials.atoma.network/tasks");
+//     const tasks = await responseTasks.json();
+
+//     const responseSubscriptions = await fetch("https://credentials.atoma.network/subscriptions");
+//     const subscriptions = await responseSubscriptions.json();
+
+//     return data.map((model: any) => {
+//       const task = tasks.find((task: any) => task[0].model_name === model.id);
+//       const subscription = subscriptions.find((subscription: any) => subscription.task_small_id === task[0].task_small_id);
+//       return {
+//         ...model,
+//         task_small_id: task[0].task_small_id,
+//         price_per_one_million_compute_units: subscription.price_per_one_million_compute_units,
+//         max_num_compute_units: subscription.max_num_compute_units
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Failed to fetch models:", error);
+//     return [];
+//   }
+// }
+
 export async function getModels(): Promise<AtomaModel[]> {
-  try {
-    const responseModels = await fetch("https://api.atoma.network/v1/models", {
-      headers: {
-        "Authorization": `Bearer ${process.env.ATOMA_API_KEY}`
-      }
-    });
-
-    if (!responseModels.ok) {
-      return [];
-    }
-
-    const data = (await responseModels.json()).data;
-
-    const responseTasks = await fetch("https://credentials.atoma.network/tasks");
-    const tasks = await responseTasks.json();
-
-    const responseSubscriptions = await fetch("https://credentials.atoma.network/subscriptions");
-    const subscriptions = await responseSubscriptions.json();
-
-    return data.map((model: any) => {
-      const task = tasks.find((task: any) => task[0].model_name === model.id);
-      const subscription = subscriptions.find((subscription: any) => subscription.task_small_id === task[0].task_small_id);
-      return {
-        ...model,
-        task_small_id: task[0].task_small_id,
-        price_per_one_million_compute_units: subscription.price_per_one_million_compute_units,
-        max_num_compute_units: subscription.max_num_compute_units
-      }
-    });
-  } catch (error) {
-    console.error("Failed to fetch models:", error);
-    return [];
-  }
+  // Just hardcode the models you want to return
+  return [
+    {
+      id: "gpt-4.1-mini",
+      object: "",
+      created: 0,
+      owned_by: "",
+      task_small_id: 0,
+      price_per_one_million_compute_units: 1,
+      max_num_compute_units: 500000
+    },
+    {
+      id: "E5-Mistral-7B-Instruct",
+      object: "",
+      created: 0,
+      owned_by: "",
+      task_small_id: 0,
+      price_per_one_million_compute_units: 1,
+      max_num_compute_units: 500000
+    },
+    {
+      id: "Qwen3-32B",
+      object: "",
+      created: 0,
+      owned_by: "",
+      task_small_id: 0,
+      price_per_one_million_compute_units: 1,
+      max_num_compute_units: 500000
+    },
+    {
+      id: "Llama-4-Maverick-17B-128E-Instruct",
+      object: "",
+      created: 0,
+      owned_by: "",
+      task_small_id: 0,
+      price_per_one_million_compute_units: 1,
+      max_num_compute_units: 500000
+    },
+    {
+      id: "Meta-Llama-3.1-8B-Instruct",
+      object: "",
+      created: 0,
+      owned_by: "",
+      task_small_id: 0,
+      price_per_one_million_compute_units: 0,
+      max_num_compute_units: 500000
+    },
+    {
+      id: "Meta-Llama-3.3-70B-Instruct",
+      object: "",
+      created: 0,
+      owned_by: "",
+      task_small_id: 0,
+      price_per_one_million_compute_units: 0,
+      max_num_compute_units: 500000
+    },
+    // Add more if needed:
+    // { id: "Qwen3-32B" },
+    // { id: "E5-Mistral-7B-Instruct" }
+  ];
 }
 
 // Helper function to build allowlist by fetching buyers

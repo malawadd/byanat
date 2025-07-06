@@ -125,7 +125,8 @@ useEffect(() => {
 
   // Handle form submission
   const onSubmit = async (values: any) => {
-    if (!dataset || !currentAccount || syntheticDatasetOutput.length === 0) {
+    if (!dataset || !currentAccount ) {
+      console.error("Dataset, account, or generated data not available for submission.");
       toast.error("Generation Failed", { description: "Dataset, account, or generated data not available." });
       return;
     }
@@ -146,6 +147,7 @@ useEffect(() => {
 
     // Only start generation if we haven't generated data yet
     if (syntheticDatasetOutput.length === 0) {
+      console.log("Starting dataset generation with config: -------------", generationConfig);
       await startGeneration(dataset, generationConfig);
     }
   };
@@ -204,6 +206,7 @@ useEffect(() => {
 //     </div>
 //   );
 // }
+
 
   return (
     <Form {...form}>

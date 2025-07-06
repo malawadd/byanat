@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { Buffer } from "buffer";
 import { google } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createOpenAI, openai } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import { TESTNET_PUBLISHERS } from "@/lib/constants";
 import { GenerationConfig, HFDataset } from "@/lib/types";
@@ -11,7 +11,7 @@ import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
 
 const atoma = createOpenAI({
   apiKey: process.env.ATOMA_API_KEY,
-  baseURL: "https://api.atoma.network/v1",
+  baseURL: "https://api.sambanova.ai/v1",
 });
 
 export async function getRows(dataset: HFDataset, offset: number, length: number) {
@@ -29,14 +29,23 @@ type ResponseBody = {
 export async function generateRow(row: string, config: GenerationConfig, maxTokens: number) {
   try {
     const prompt = config.prompt.replace("{input}", row);
+    console.log("------------------------------------------------------------------")
+
+    console.log("jsonSchemaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", config.jsonSchema);
+    console.log("Prompt for generation:", config);
 
     if (config.jsonSchema) {
+      console.log("Using JSON Schema for object generation");
+
       const { object, usage, response: { body } } = await generateObject({
-        model: atoma(config.model),
+        model: openai('gpt-4.1-mini'),
         prompt,
         schema: JSONSchemaToZod.convert(config.jsonSchema),
         maxTokens,
       });
+      console.log("Generated object:", object);
+      console.log("Usage stats:", usage);
+      console.log("Response body:", body);
 
       const { signature, response_hash } = body as ResponseBody;
 
@@ -48,10 +57,13 @@ export async function generateRow(row: string, config: GenerationConfig, maxToke
       };
     } else {
       const { text, usage, response: { body } } = await generateText({
-        model: atoma(config.model),
+        model: openai('gpt-4.1-mini'),
         prompt,
         maxTokens,
       });
+      console.log("Generated text:", text);
+      console.log("Usage stats:", usage);
+      console.log("Response body:", body);
 
       const { signature, response_hash } = body as ResponseBody;
 
