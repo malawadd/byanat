@@ -6,6 +6,7 @@ import { DatasetObject } from "@/lib/types";
 import { Download, Coins, Loader2 } from "lucide-react";
 import { MIST_PER_USDC } from "@/lib/constants";
 import BuyDatasetButton from "@/components/BuyDatasetButton";
+import MintTestTokenButton from "@/components/MintTestTokenButton";
 import { Address } from "viem";
 
 interface DatasetActionsCardProps {
@@ -35,6 +36,11 @@ export function DatasetActionsCard({
         <CardTitle className="text-lg">Actions</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Mint Test Tokens Button */}
+        {currentAccount && (
+          <MintTestTokenButton disabled={isLoading || isProcessingTx} />
+        )}
+        
         {/* Buy Dataset Button */}
         {currentAccount && !hasAccess && dataset && dataset.price > 0 && dataset.visibility.inner === 0 && (
           <BuyDatasetButton
